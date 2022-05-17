@@ -1,24 +1,15 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# ### Como utilizar PySpark no Jupyter Notebook
-# ---
-# 
-# [Instalação PySpark](https://medium.com/designed-by-data/instalando-apache-pyspark-para-funcionar-com-jupyter-notebook-no-macos-42f992c45842)
-
-# #### Criando sessão com Spark e bibliotecas
-
-# In[2]:
+#### Criação de uma tabela calendário ####
+# --.--.--.--.--.--.--.--.--.--.--.--.-- #
 
 
+# Criando sessão com Spark e bibliotecas
 from pyspark.sql.session import SparkSession
 from pyspark import SparkContext 
 sc = SparkContext.getOrCreate() 
 spark = SparkSession(sc)
 
-
+# Biblioteca
 from pyspark.sql.functions import *
-
 #from pyspark.sql.functions import explode, sequence, to_date
 
 # Inputs
@@ -36,6 +27,7 @@ calendar = spark.sql(
     """
 )
 
+# Acrescentando novsas variáveis 
 calendar = calendar\
     .withColumn('datediff_now', datediff(current_date(), col('calendar_date')))\
     .withColumn('weekday_name', date_format(col('calendar_date'), 'EEEE'))\
@@ -64,22 +56,5 @@ calendar = calendar\
 
 calendar = calendar.drop('firstdayof_week','firstdayof_month')
 
+# Criando uma View temporária
 calendar.createOrReplaceTempView("calendar")
-
-
-
-def read_sparkcsv(path, delimiter = ";",file_type = "csv",infer_schema = "true",first_row_is_header = "true"):
-    
-    """
-    Função para ler arquivo csv
-    """
-    
-    # The applied options are for CSV files. For other file types, these will be ignored.
-    df = spark.read.format(file_type) \
-      .option("inferSchema", infer_schema) \
-      .option("header", first_row_is_header) \
-      .option("sep", delimiter) \
-      .load(path)\
-      .dropDuplicates()
-    
-    return df
